@@ -12,6 +12,7 @@ import SignupPage from './pages/SignupPage';
 import FavoritesPage from './pages/FavoritesPage';
 import MovieDetailPage from './pages/MovieDetailPage';
 import GenrePage from './pages/GenrePage';
+import './i18n'; // Initialize i18n
 import './App.css';
 
 // Glass Card Component

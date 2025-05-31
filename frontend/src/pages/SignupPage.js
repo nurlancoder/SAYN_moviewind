@@ -2,10 +2,12 @@ import React, { useState } from 'react';
 import { Link, Navigate } from 'react-router-dom';
 import { motion } from 'framer-motion';
 import { Mail, Lock, User, Eye, EyeOff, Film, Loader, AlertCircle, Check } from 'lucide-react';
+import { useTranslation } from 'react-i18next';
 import { useAuth } from '../contexts/AuthContext';
 
 const SignupPage = () => {
-  const { signup, currentUser, authError, clearError } = useAuth();
+  const { t } = useTranslation();
+  const { signup, loginWithGoogle, currentUser, authError, clearError } = useAuth();
   const [formData, setFormData] = useState({
     displayName: '',
     email: '',
@@ -15,6 +17,7 @@ const SignupPage = () => {
   const [showPassword, setShowPassword] = useState(false);
   const [showConfirmPassword, setShowConfirmPassword] = useState(false);
   const [loading, setLoading] = useState(false);
+  const [googleLoading, setGoogleLoading] = useState(false);
   const [formErrors, setFormErrors] = useState({});
 
   // Redirect if already logged in

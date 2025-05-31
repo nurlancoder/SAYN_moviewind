@@ -4,9 +4,14 @@ import {
   signInWithEmailAndPassword, 
   createUserWithEmailAndPassword, 
   signOut,
-  updateProfile
+  updateProfile,
+  signInWithPopup,
+  updatePassword,
+  updateEmail,
+  EmailAuthProvider,
+  reauthenticateWithCredential
 } from 'firebase/auth';
-import { auth } from '../firebase/config';
+import { auth, googleProvider } from '../firebase/config';
 
 const AuthContext = createContext();
 
@@ -54,6 +59,59 @@ export const AuthProvider = ({ children }) => {
     }
   };
 
+  // Login with Google
+  const loginWithGoogle = async () => {
+    try {
+      setAuthError(null);
+      return await signInWithPopup(auth, googleProvider);
+    } catch (error) {
+      setAuthError(error.message);
+      throw error;
+    }
+  };
+
+  // Update user profile
+  const updateUserProfile = async (profileData) => {
+    try {
+      setAuthError(null);
+      await updateProfile(currentUser, profileData);
+      return true;
+    } catch (error) {
+      setAuthError(error.message);
+      throw error;
+    }
+  };
+
+  // Update user email
+  const updateUserEmail = async (newEmail, currentPassword) => {
+    try {
+      setAuthError(null);
+      // Re-authenticate user before email change
+      const credential = EmailAuthProvider.credential(currentUser.email, currentPassword);
+      await reauthenticateWithCredential(currentUser, credential);
+      await updateEmail(currentUser, newEmail);
+      return true;
+    } catch (error) {
+      setAuthError(error.message);
+      throw error;
+    }
+  };
+
+  // Update user password
+  const updateUserPassword = async (currentPassword, newPassword) => {
+    try {
+      setAuthError(null);
+      // Re-authenticate user before password change
+      const credential = EmailAuthProvider.credential(currentUser.email, currentPassword);
+      await reauthenticateWithCredential(currentUser, credential);
+      await updatePassword(currentUser, newPassword);
+      return true;
+    } catch (error) {
+      setAuthError(error.message);
+      throw error;
+    }
+  };
+
   // Logout
   const logout = async () => {
     try {
@@ -83,7 +141,11 @@ export const AuthProvider = ({ children }) => {
     currentUser,
     signup,
     login,
+    loginWithGoogle,
     logout,
+    updateUserProfile,
+    updateUserEmail,
+    updateUserPassword,
     authError,
     clearError,
     loading
