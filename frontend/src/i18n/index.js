@@ -7,7 +7,6 @@ import enTranslations from './locales/en.json';
 import azTranslations from './locales/az.json';
 import trTranslations from './locales/tr.json';
 
-// the translations
 const resources = {
   en: {
     translation: enTranslations
@@ -26,19 +25,16 @@ i18n
   .use(initReactI18next)
   .init({
     resources,
-    lng: 'en', // default language
+    lng: 'en',
     fallbackLng: 'en',
     debug: false,
-
     interpolation: {
-      escapeValue: false // not needed for react as it escapes by default
+      escapeValue: false
     },
-
     detection: {
       order: ['localStorage', 'navigator', 'htmlTag'],
       caches: ['localStorage'],
     },
-
     react: {
       useSuspense: false
     }

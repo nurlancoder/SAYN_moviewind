@@ -1,10 +1,10 @@
-import React, { useState, useEffect } from 'react';
+import { useState, useEffect } from 'react';
 import { useParams, useNavigate } from 'react-router-dom';
 import { motion, AnimatePresence } from 'framer-motion';
 import ReactPlayer from 'react-player';
 import { 
-  ArrowLeft, Play, Heart, BookmarkPlus, Star, Calendar, Clock, 
-  Globe, DollarSign, Users, Loader, X, Share2, ThumbsUp
+  ArrowLeft, Play, Heart, Star, Calendar, Clock, 
+  Globe, DollarSign, Users, Loader, X, Share2
 } from 'lucide-react';
 import tmdbService from '../services/tmdbService';
 import { useAuth } from '../contexts/AuthContext';
@@ -38,7 +38,6 @@ const MovieDetailPage = () => {
         setMovie(movieData);
         setSimilarMovies(similarData.slice(0, 8));
         
-        // Set first trailer as default
         if (movieData.trailers && movieData.trailers.length > 0) {
           setSelectedTrailer(movieData.trailers[0]);
         }
@@ -83,10 +82,10 @@ const MovieDetailPage = () => {
 
   if (loading) {
     return (
-      <div className="min-h-screen bg-cinema-darker pt-24 flex items-center justify-center">
+      <div className="flex items-center justify-center min-h-screen pt-24 bg-cinema-darker">
         <div className="text-center">
-          <Loader className="w-12 h-12 text-cinema-blue animate-spin mx-auto mb-4" />
-          <p className="text-white text-lg">Loading movie details...</p>
+          <Loader className="w-12 h-12 mx-auto mb-4 text-cinema-blue animate-spin" />
+          <p className="text-lg text-white">Loading movie details...</p>
         </div>
       </div>
     );
@@ -94,18 +93,18 @@ const MovieDetailPage = () => {
 
   if (error || !movie) {
     return (
-      <div className="min-h-screen bg-cinema-darker pt-24 flex items-center justify-center">
-        <div className="text-center max-w-md mx-auto px-6">
-          <div className="text-red-400 text-6xl mb-4">😞</div>
-          <h2 className="text-2xl font-bold text-white mb-4">Movie Not Found</h2>
-          <p className="text-gray-400 mb-8">{error || 'The movie you\'re looking for doesn\'t exist.'}</p>
+      <div className="flex items-center justify-center min-h-screen pt-24 bg-cinema-darker">
+        <div className="max-w-md px-6 mx-auto text-center">
+          <div className="mb-4 text-6xl text-red-400">😞</div>
+          <h2 className="mb-4 text-2xl font-bold text-white">Movie Not Found</h2>
+          <p className="mb-8 text-gray-400">{error || 'The movie you\'re looking for doesn\'t exist.'}</p>
           <motion.button
             whileHover={{ scale: 1.05 }}
             whileTap={{ scale: 0.95 }}
             onClick={() => navigate('/')}
-            className="bg-cinema-blue text-white px-6 py-3 rounded-lg font-semibold hover:bg-cinema-blue/80 transition-colors"
+            className="px-6 py-3 font-semibold text-white transition-colors rounded-lg bg-cinema-blue hover:bg-cinema-blue/80"
           >
-            <ArrowLeft className="w-5 h-5 inline mr-2" />
+            <ArrowLeft className="inline w-5 h-5 mr-2" />
             Back to Home
           </motion.button>
         </div>
@@ -115,14 +114,13 @@ const MovieDetailPage = () => {
 
   return (
     <div className="min-h-screen bg-cinema-darker">
-      {/* Trailer Modal */}
       <AnimatePresence>
         {showTrailer && selectedTrailer && (
           <motion.div
             initial={{ opacity: 0 }}
             animate={{ opacity: 1 }}
             exit={{ opacity: 0 }}
-            className="fixed inset-0 bg-black/90 flex items-center justify-center p-4 z-50"
+            className="fixed inset-0 z-50 flex items-center justify-center p-4 bg-black/90"
             onClick={() => setShowTrailer(false)}
           >
             <motion.div
@@ -134,7 +132,7 @@ const MovieDetailPage = () => {
             >
               <button
                 onClick={() => setShowTrailer(false)}
-                className="absolute -top-12 right-0 text-white hover:text-cinema-blue transition-colors z-10"
+                className="absolute right-0 z-10 text-white transition-colors -top-12 hover:text-cinema-blue"
               >
                 <X className="w-8 h-8" />
               </button>
@@ -159,9 +157,8 @@ const MovieDetailPage = () => {
         )}
       </AnimatePresence>
 
-      {/* Hero Section */}
       <div 
-        className="relative h-screen flex items-end"
+        className="relative flex items-end h-screen"
         style={{
           backgroundImage: movie.backdrop ? `url(${movie.backdrop})` : `url(${movie.poster})`,
           backgroundSize: 'cover',
@@ -170,21 +167,19 @@ const MovieDetailPage = () => {
       >
         <div className="absolute inset-0 bg-gradient-to-t from-cinema-darker via-cinema-darker/60 to-transparent" />
         
-        {/* Back Button */}
         <motion.button
           initial={{ opacity: 0, x: -20 }}
           animate={{ opacity: 1, x: 0 }}
           whileHover={{ scale: 1.05 }}
           whileTap={{ scale: 0.95 }}
           onClick={() => navigate(-1)}
-          className="absolute top-24 left-6 bg-black/50 backdrop-blur-sm text-white p-3 rounded-full hover:bg-black/70 transition-colors z-10"
+          className="absolute z-10 p-3 text-white transition-colors rounded-full top-24 left-6 bg-black/50 backdrop-blur-sm hover:bg-black/70"
         >
           <ArrowLeft className="w-6 h-6" />
         </motion.button>
 
-        <div className="relative z-10 w-full max-w-7xl mx-auto px-6 pb-16">
-          <div className="grid grid-cols-1 lg:grid-cols-3 gap-8 items-end">
-            {/* Movie Poster */}
+        <div className="relative z-10 w-full px-6 pb-16 mx-auto max-w-7xl">
+          <div className="grid items-end grid-cols-1 gap-8 lg:grid-cols-3">
             <motion.div
               initial={{ opacity: 0, y: 50 }}
               animate={{ opacity: 1, y: 0 }}
@@ -195,34 +190,32 @@ const MovieDetailPage = () => {
                 <img
                   src={movie.poster}
                   alt={movie.title}
-                  className="w-80 rounded-2xl shadow-2xl"
+                  className="shadow-2xl w-80 rounded-2xl"
                 />
               ) : (
-                <div className="w-80 h-96 bg-cinema-accent rounded-2xl flex items-center justify-center">
-                  <span className="text-gray-500 text-lg">No Poster</span>
+                <div className="flex items-center justify-center w-80 h-96 bg-cinema-accent rounded-2xl">
+                  <span className="text-lg text-gray-500">No Poster</span>
                 </div>
               )}
             </motion.div>
 
-            {/* Movie Info */}
             <motion.div
               initial={{ opacity: 0, y: 50 }}
               animate={{ opacity: 1, y: 0 }}
               transition={{ duration: 0.6, delay: 0.2 }}
-              className="lg:col-span-2 text-center lg:text-left"
+              className="text-center lg:col-span-2 lg:text-left"
             >
-              <h1 className="text-4xl lg:text-6xl font-bold text-white mb-4">
+              <h1 className="mb-4 text-4xl font-bold text-white lg:text-6xl">
                 {movie.title}
               </h1>
               
               {movie.tagline && (
-                <p className="text-cinema-blue text-xl italic mb-6">"{movie.tagline}"</p>
+                <p className="mb-6 text-xl italic text-cinema-blue">"{movie.tagline}"</p>
               )}
 
-              {/* Movie Stats */}
-              <div className="flex flex-wrap items-center justify-center lg:justify-start gap-6 mb-6 text-gray-300">
+              <div className="flex flex-wrap items-center justify-center gap-6 mb-6 text-gray-300 lg:justify-start">
                 <div className="flex items-center space-x-2">
-                  <Star className="text-yellow-400 w-5 h-5 fill-current" />
+                  <Star className="w-5 h-5 text-yellow-400 fill-current" />
                   <span className="font-semibold">{movie.rating}</span>
                   <span className="text-sm">({movie.voteCount} votes)</span>
                 </div>
@@ -238,26 +231,24 @@ const MovieDetailPage = () => {
                 )}
               </div>
 
-              {/* Genres */}
-              <div className="flex flex-wrap justify-center lg:justify-start gap-2 mb-8">
+              <div className="flex flex-wrap justify-center gap-2 mb-8 lg:justify-start">
                 {movie.genres && movie.genres.map((genre) => (
                   <span
                     key={genre.id}
-                    className="px-4 py-2 bg-cinema-blue/20 text-cinema-blue rounded-full border border-cinema-blue/30 text-sm font-medium"
+                    className="px-4 py-2 text-sm font-medium border rounded-full bg-cinema-blue/20 text-cinema-blue border-cinema-blue/30"
                   >
                     {genre.name}
                   </span>
                 ))}
               </div>
 
-              {/* Action Buttons */}
-              <div className="flex flex-wrap items-center justify-center lg:justify-start gap-4 mb-8">
+              <div className="flex flex-wrap items-center justify-center gap-4 mb-8 lg:justify-start">
                 {movie.trailers && movie.trailers.length > 0 && (
                   <motion.button
                     whileHover={{ scale: 1.05 }}
                     whileTap={{ scale: 0.95 }}
                     onClick={() => setShowTrailer(true)}
-                    className="flex items-center space-x-2 bg-cinema-blue text-white px-8 py-4 rounded-lg font-semibold hover:bg-cinema-blue/80 transition-colors"
+                    className="flex items-center px-8 py-4 space-x-2 font-semibold text-white transition-colors rounded-lg bg-cinema-blue hover:bg-cinema-blue/80"
                   >
                     <Play className="w-6 h-6" />
                     <span>Watch Trailer</span>
@@ -286,15 +277,14 @@ const MovieDetailPage = () => {
                 <motion.button
                   whileHover={{ scale: 1.05 }}
                   whileTap={{ scale: 0.95 }}
-                  className="flex items-center space-x-2 bg-white/10 text-white px-8 py-4 rounded-lg font-semibold hover:bg-white/20 transition-colors"
+                  className="flex items-center px-8 py-4 space-x-2 font-semibold text-white transition-colors rounded-lg bg-white/10 hover:bg-white/20"
                 >
                   <Share2 className="w-6 h-6" />
                   <span>Share</span>
                 </motion.button>
               </div>
 
-              {/* Overview */}
-              <p className="text-gray-300 text-lg leading-relaxed max-w-3xl">
+              <p className="max-w-3xl text-lg leading-relaxed text-gray-300">
                 {movie.description}
               </p>
             </motion.div>
@@ -302,36 +292,33 @@ const MovieDetailPage = () => {
         </div>
       </div>
 
-      {/* Movie Details */}
-      <div className="max-w-7xl mx-auto px-6 py-16">
-        <div className="grid grid-cols-1 lg:grid-cols-3 gap-12">
-          {/* Main Content */}
-          <div className="lg:col-span-2 space-y-12">
-            {/* Cast */}
+      <div className="px-6 py-16 mx-auto max-w-7xl">
+        <div className="grid grid-cols-1 gap-12 lg:grid-cols-3">
+          <div className="space-y-12 lg:col-span-2">
             {movie.cast && movie.cast.length > 0 && (
               <motion.section
                 initial={{ opacity: 0, y: 20 }}
                 whileInView={{ opacity: 1, y: 0 }}
                 viewport={{ once: true }}
               >
-                <h2 className="text-2xl font-bold text-white mb-6">Cast</h2>
-                <div className="grid grid-cols-2 md:grid-cols-4 gap-4">
+                <h2 className="mb-6 text-2xl font-bold text-white">Cast</h2>
+                <div className="grid grid-cols-2 gap-4 md:grid-cols-4">
                   {movie.cast.slice(0, 8).map((actor) => (
                     <div key={actor.id} className="text-center">
                       {actor.profilePicture ? (
                         <img
                           src={actor.profilePicture}
                           alt={actor.name}
-                          className="w-24 h-24 rounded-full mx-auto mb-3 object-cover"
+                          className="object-cover w-24 h-24 mx-auto mb-3 rounded-full"
                         />
                       ) : (
-                        <div className="w-24 h-24 rounded-full mx-auto mb-3 bg-cinema-accent flex items-center justify-center">
+                        <div className="flex items-center justify-center w-24 h-24 mx-auto mb-3 rounded-full bg-cinema-accent">
                           <Users className="w-8 h-8 text-gray-500" />
                         </div>
                       )}
-                      <h3 className="text-white font-medium text-sm">{actor.name}</h3>
+                      <h3 className="text-sm font-medium text-white">{actor.name}</h3>
                       {actor.character && (
-                        <p className="text-gray-400 text-xs">{actor.character}</p>
+                        <p className="text-xs text-gray-400">{actor.character}</p>
                       )}
                     </div>
                   ))}
@@ -339,15 +326,14 @@ const MovieDetailPage = () => {
               </motion.section>
             )}
 
-            {/* Trailers */}
             {movie.trailers && movie.trailers.length > 1 && (
               <motion.section
                 initial={{ opacity: 0, y: 20 }}
                 whileInView={{ opacity: 1, y: 0 }}
                 viewport={{ once: true }}
               >
-                <h2 className="text-2xl font-bold text-white mb-6">Trailers</h2>
-                <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+                <h2 className="mb-6 text-2xl font-bold text-white">Trailers</h2>
+                <div className="grid grid-cols-1 gap-4 md:grid-cols-2">
                   {movie.trailers.slice(0, 4).map((trailer) => (
                     <motion.div
                       key={trailer.key}
@@ -356,18 +342,18 @@ const MovieDetailPage = () => {
                         setSelectedTrailer(trailer);
                         setShowTrailer(true);
                       }}
-                      className="relative bg-cinema-accent rounded-lg overflow-hidden cursor-pointer group"
+                      className="relative overflow-hidden rounded-lg cursor-pointer bg-cinema-accent group"
                     >
                       <img
                         src={`https://img.youtube.com/vi/${trailer.key}/hqdefault.jpg`}
                         alt={trailer.name}
-                        className="w-full h-32 object-cover"
+                        className="object-cover w-full h-32"
                       />
-                      <div className="absolute inset-0 bg-black/40 group-hover:bg-black/20 transition-colors flex items-center justify-center">
-                        <Play className="text-white w-12 h-12" />
+                      <div className="absolute inset-0 flex items-center justify-center transition-colors bg-black/40 group-hover:bg-black/20">
+                        <Play className="w-12 h-12 text-white" />
                       </div>
                       <div className="p-3">
-                        <h3 className="text-white font-medium text-sm">{trailer.name}</h3>
+                        <h3 className="text-sm font-medium text-white">{trailer.name}</h3>
                       </div>
                     </motion.div>
                   ))}
@@ -376,26 +362,24 @@ const MovieDetailPage = () => {
             )}
           </div>
 
-          {/* Sidebar */}
           <div className="space-y-8">
-            {/* Movie Facts */}
             <motion.div
               initial={{ opacity: 0, y: 20 }}
               whileInView={{ opacity: 1, y: 0 }}
               viewport={{ once: true }}
-              className="bg-glass-gradient backdrop-blur-glass border border-white/20 rounded-xl p-6"
+              className="p-6 border bg-glass-gradient backdrop-blur-glass border-white/20 rounded-xl"
             >
-              <h3 className="text-white font-bold text-lg mb-4">Movie Facts</h3>
+              <h3 className="mb-4 text-lg font-bold text-white">Movie Facts</h3>
               <div className="space-y-4">
                 {movie.status && (
                   <div>
-                    <span className="text-gray-400 text-sm">Status</span>
+                    <span className="text-sm text-gray-400">Status</span>
                     <p className="text-white">{movie.status}</p>
                   </div>
                 )}
                 {movie.budget > 0 && (
                   <div>
-                    <span className="text-gray-400 text-sm flex items-center space-x-1">
+                    <span className="flex items-center space-x-1 text-sm text-gray-400">
                       <DollarSign className="w-4 h-4" />
                       <span>Budget</span>
                     </span>
@@ -404,7 +388,7 @@ const MovieDetailPage = () => {
                 )}
                 {movie.revenue > 0 && (
                   <div>
-                    <span className="text-gray-400 text-sm flex items-center space-x-1">
+                    <span className="flex items-center space-x-1 text-sm text-gray-400">
                       <DollarSign className="w-4 h-4" />
                       <span>Revenue</span>
                     </span>
@@ -413,7 +397,7 @@ const MovieDetailPage = () => {
                 )}
                 {movie.homepage && (
                   <div>
-                    <span className="text-gray-400 text-sm flex items-center space-x-1">
+                    <span className="flex items-center space-x-1 text-sm text-gray-400">
                       <Globe className="w-4 h-4" />
                       <span>Official Site</span>
                     </span>
@@ -421,7 +405,7 @@ const MovieDetailPage = () => {
                       href={movie.homepage}
                       target="_blank"
                       rel="noopener noreferrer"
-                      className="text-cinema-blue hover:text-cinema-blue/80 transition-colors"
+                      className="transition-colors text-cinema-blue hover:text-cinema-blue/80"
                     >
                       Visit Website
                     </a>
@@ -430,20 +414,19 @@ const MovieDetailPage = () => {
               </div>
             </motion.div>
 
-            {/* Crew */}
             {movie.crew && movie.crew.length > 0 && (
               <motion.div
                 initial={{ opacity: 0, y: 20 }}
                 whileInView={{ opacity: 1, y: 0 }}
                 viewport={{ once: true }}
-                className="bg-glass-gradient backdrop-blur-glass border border-white/20 rounded-xl p-6"
+                className="p-6 border bg-glass-gradient backdrop-blur-glass border-white/20 rounded-xl"
               >
-                <h3 className="text-white font-bold text-lg mb-4">Key Crew</h3>
+                <h3 className="mb-4 text-lg font-bold text-white">Key Crew</h3>
                 <div className="space-y-3">
                   {movie.crew.map((member) => (
                     <div key={`${member.id}-${member.job}`}>
-                      <h4 className="text-white font-medium">{member.name}</h4>
-                      <p className="text-gray-400 text-sm">{member.job}</p>
+                      <h4 className="font-medium text-white">{member.name}</h4>
+                      <p className="text-sm text-gray-400">{member.job}</p>
                     </div>
                   ))}
                 </div>
@@ -453,18 +436,17 @@ const MovieDetailPage = () => {
         </div>
       </div>
 
-      {/* Similar Movies */}
       {similarMovies.length > 0 && (
-        <div className="max-w-7xl mx-auto px-6 pb-16">
+        <div className="px-6 pb-16 mx-auto max-w-7xl">
           <motion.h2
             initial={{ opacity: 0, y: 20 }}
             whileInView={{ opacity: 1, y: 0 }}
             viewport={{ once: true }}
-            className="text-3xl font-bold text-white mb-8"
+            className="mb-8 text-3xl font-bold text-white"
           >
             Similar Movies
           </motion.h2>
-          <div className="grid grid-cols-2 md:grid-cols-4 lg:grid-cols-6 gap-6">
+          <div className="grid grid-cols-2 gap-6 md:grid-cols-4 lg:grid-cols-6">
             {similarMovies.map((similarMovie) => (
               <motion.div
                 key={similarMovie.id}
@@ -479,19 +461,19 @@ const MovieDetailPage = () => {
                   <img
                     src={similarMovie.poster}
                     alt={similarMovie.title}
-                    className="w-full h-64 object-cover rounded-lg shadow-lg group-hover:shadow-2xl transition-shadow"
+                    className="object-cover w-full h-64 transition-shadow rounded-lg shadow-lg group-hover:shadow-2xl"
                   />
                 ) : (
-                  <div className="w-full h-64 bg-cinema-accent rounded-lg flex items-center justify-center">
+                  <div className="flex items-center justify-center w-full h-64 rounded-lg bg-cinema-accent">
                     <span className="text-gray-500">No Poster</span>
                   </div>
                 )}
-                <h3 className="text-white font-medium mt-3 text-sm group-hover:text-cinema-blue transition-colors">
+                <h3 className="mt-3 text-sm font-medium text-white transition-colors group-hover:text-cinema-blue">
                   {similarMovie.title}
                 </h3>
-                <div className="flex items-center space-x-1 mt-1">
-                  <Star className="text-yellow-400 w-3 h-3 fill-current" />
-                  <span className="text-gray-400 text-xs">{similarMovie.rating}</span>
+                <div className="flex items-center mt-1 space-x-1">
+                  <Star className="w-3 h-3 text-yellow-400 fill-current" />
+                  <span className="text-xs text-gray-400">{similarMovie.rating}</span>
                 </div>
               </motion.div>
             ))}

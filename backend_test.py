@@ -4,7 +4,7 @@ import uuid
 from datetime import datetime
 
 # Backend URL from frontend/.env
-BACKEND_URL = "https://67680f7c-41fe-4a45-ae77-567353ef9877.preview.emergentagent.com/api"
+BACKEND_URL = "https://28fee7a1-1962-4af6-a68e-65b9b9084f5d.preview.emergentagent.com/api"
 
 def test_root_endpoint():
     print("\n=== Testing Root Endpoint ===")
