@@ -10,7 +10,7 @@ const ProtectedRoute = ({
   redirectTo = '/login',
   fallbackComponent = null 
 }) => {
-  const { currentUser, loading, userRole, hasPermission } = useAuth();
+  const { currentUser, loading } = useAuth();
   const location = useLocation();
 
   if (loading) {
@@ -31,7 +31,7 @@ const ProtectedRoute = ({
     return <Navigate to={redirectTo} state={{ from: location }} replace />;
   }
 
-  if (adminOnly && !hasPermission('admin')) {
+  if (adminOnly) {
     return fallbackComponent || (
       <div className="flex items-center justify-center min-h-screen bg-cinema-darker">
         <div className="max-w-md p-8 mx-auto text-center">
@@ -51,14 +51,14 @@ const ProtectedRoute = ({
     );
   }
 
-  if (requiredRole && userRole !== requiredRole) {
+  if (requiredRole) {
     return fallbackComponent || (
       <div className="flex items-center justify-center min-h-screen bg-cinema-darker">
         <div className="max-w-md p-8 mx-auto text-center">
           <AlertCircle className="w-16 h-16 mx-auto mb-4 text-yellow-500" />
           <h2 className="mb-4 text-2xl font-bold text-white">Insufficient Permissions</h2>
           <p className="mb-6 text-gray-300">
-            This page requires {requiredRole} access level. Your current role: {userRole || 'user'}.
+            This page requires {requiredRole} access level.
           </p>
           <button 
             onClick={() => window.history.back()}

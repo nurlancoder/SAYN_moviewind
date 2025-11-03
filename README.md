@@ -40,14 +40,32 @@ yarn install
 
 ### 3. Environment Variables
 
-Create a `.env` file in the `frontend` directory:
+Create a `.env` file in the `frontend` directory. You can copy `frontend/env.example` as a template:
 
-```env
-REACT_APP_TMDB_API_KEY=your_tmdb_api_key_here
-REACT_APP_TMDB_READ_ACCESS_TOKEN=your_tmdb_read_access_token_here
+```bash
+cd frontend
+cp env.example .env
 ```
 
-**Note**: Firebase configuration is already set in `frontend/src/firebase/config.js`. If you need to use your own Firebase project, update the config file.
+Then edit `.env` and fill in your actual values:
+
+```env
+# TMDB API Configuration
+REACT_APP_TMDB_API_KEY=your_tmdb_api_key_here
+REACT_APP_TMDB_READ_ACCESS_TOKEN=your_tmdb_read_access_token_here
+
+# Firebase Configuration
+REACT_APP_FIREBASE_API_KEY=your_firebase_api_key
+REACT_APP_FIREBASE_AUTH_DOMAIN=your-project.firebaseapp.com
+REACT_APP_FIREBASE_PROJECT_ID=your-project-id
+REACT_APP_FIREBASE_STORAGE_BUCKET=your-project.appspot.com
+REACT_APP_FIREBASE_MESSAGING_SENDER_ID=your_messaging_sender_id
+REACT_APP_FIREBASE_APP_ID=your_firebase_app_id
+REACT_APP_FIREBASE_MEASUREMENT_ID=your_measurement_id
+
+# Firebase Cloud Messaging (Optional)
+REACT_APP_FIREBASE_VAPID_KEY=your_vapid_key_here
+```
 
 ## 🏃 Running Locally
 
@@ -87,10 +105,21 @@ vercel --prod
 
 ### 3. Set Environment Variables in Vercel
 
-Go to your Vercel project settings and add these environment variables:
+Go to your Vercel project settings → Environment Variables and add all the following variables:
 
+**TMDB API:**
 - `REACT_APP_TMDB_API_KEY`: Your TMDB API key
 - `REACT_APP_TMDB_READ_ACCESS_TOKEN`: Your TMDB read access token
+
+**Firebase:**
+- `REACT_APP_FIREBASE_API_KEY`: Your Firebase API key
+- `REACT_APP_FIREBASE_AUTH_DOMAIN`: Your Firebase auth domain
+- `REACT_APP_FIREBASE_PROJECT_ID`: Your Firebase project ID
+- `REACT_APP_FIREBASE_STORAGE_BUCKET`: Your Firebase storage bucket
+- `REACT_APP_FIREBASE_MESSAGING_SENDER_ID`: Your Firebase messaging sender ID
+- `REACT_APP_FIREBASE_APP_ID`: Your Firebase app ID
+- `REACT_APP_FIREBASE_MEASUREMENT_ID`: Your Firebase measurement ID (optional)
+- `REACT_APP_FIREBASE_VAPID_KEY`: Your Firebase VAPID key (optional, for notifications)
 
 ### 4. Deploy via GitHub
 
@@ -121,7 +150,8 @@ The app uses TMDB API for movie data:
 1. Create a Firebase project at [Firebase Console](https://console.firebase.google.com/)
 2. Enable Authentication (Google provider)
 3. Enable Firestore Database
-4. Update `frontend/src/firebase/config.js` with your Firebase config
+4. Get your Firebase configuration from Project Settings → General → Your apps
+5. Add all Firebase config values to your `.env` file (see Environment Variables section)
 
 ### TMDB API Setup
 

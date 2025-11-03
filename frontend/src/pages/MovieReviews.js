@@ -656,10 +656,7 @@ const MovieReviews = ({ movieId, movieTitle }) => {
     
     try {
       // Backend API removed - save vote to Firebase Firestore if needed
-      // await axios.post(`${BACKEND_URL}/api/reviews/${reviewId}/vote`, {
-        user_id: currentUser.uid,
-        action: action === 'like' ? 'like' : 'dislike'
-      });
+      // Vote functionality can be implemented with Firebase if needed
       loadReviews(); 
     } catch (error) {
       console.error('Error voting on review:', error);
@@ -692,10 +689,7 @@ const MovieReviews = ({ movieId, movieTitle }) => {
     try {
       setIsReporting(true);
       // Backend API removed - save report to Firebase Firestore if needed
-      // await axios.post(`${BACKEND_URL}/api/reviews/${reviewId}/report`, {
-        user_id: currentUser?.uid,
-        reason: reportReason
-      });
+      // Report functionality can be implemented with Firebase if needed
       setReportingReview(null);
       setReportReason('');
     } catch (error) {

@@ -48,17 +48,17 @@ const SignupPage = () => {
     }
   ];
 
-  if (currentUser) {
-    return <Navigate to="/" />;
-  }
-
   useEffect(() => {
     const interval = setInterval(() => {
       setCurrentFeature((prev) => (prev + 1) % features.length);
     }, 3000);
 
     return () => clearInterval(interval);
-  }, []);
+  }, [features.length]);
+
+  if (currentUser) {
+    return <Navigate to="/" />;
+  }
 
   const validateForm = () => {
     const errors = {};

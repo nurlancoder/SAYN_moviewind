@@ -1,4 +1,4 @@
-import { useState, useEffect, useRef } from 'react';
+import { useState, useEffect, useRef, useCallback } from 'react';
 import { motion, AnimatePresence } from 'framer-motion';
 import { useParams, useNavigate } from 'react-router-dom';
 import { 
@@ -493,27 +493,55 @@ const WatchMovie = () => {
 
   const playbackSpeedOptions = [0.5, 0.75, 1, 1.25, 1.5, 2];
 
+  const updateWatchProgress = useCallback(async () => {
+    if (!currentUser || !movie || !duration) return;
+
+    const progressPercentage = (currentTime / duration) * 100;
+    const watchData = {
+      user_id: currentUser.uid,
+      movie_id: movie.id,
+      movie_title: movie.title,
+      movie_poster: movie.poster,
+      watch_duration: Math.floor(currentTime / 60), 
+      total_duration: Math.floor(duration / 60),
+      progress_percentage: progressPercentage,
+      completed: progressPercentage >= 90 
+    };
+
+    // Watch history will be saved to Firebase Firestore if needed
+    try {
+      // Save to Firebase Firestore collection 'watch_history' if needed
+      // await addDoc(collection(db, 'watch_history'), watchData);
+    } catch (error) {
+      console.error('Error saving watch progress:', error);
+    }
+  }, [currentUser, movie, duration, currentTime]);
+
   useEffect(() => {
+    if (!id) return;
     loadMovieDetails();
     checkUserLists();
     loadRecommendations();
-    
-    return () => {
-      if (currentUser && movie && duration > 0) {
-        updateWatchProgress();
-      }
-    };
   }, [id]);
 
   useEffect(() => {
     const interval = setInterval(() => {
-      if (isPlaying && currentTime > 0 && movie) {
+      if (isPlaying && currentTime > 0 && movie && currentUser && duration > 0) {
         updateWatchProgress();
       }
     }, 30000); 
 
     return () => clearInterval(interval);
-  }, [isPlaying, currentTime, movie]);
+  }, [isPlaying, currentTime, movie, currentUser, duration, updateWatchProgress]);
+
+  useEffect(() => {
+    return () => {
+      // Cleanup: Save watch progress on unmount
+      if (currentUser && movie && duration > 0 && currentTime > 0) {
+        updateWatchProgress();
+      }
+    };
+  }, []);
 
   const loadMovieDetails = async () => {
     try {
@@ -547,25 +575,6 @@ const WatchMovie = () => {
     } catch (error) {
       console.error('Error loading recommendations:', error);
     }
-  };
-
-  const updateWatchProgress = async () => {
-    if (!currentUser || !movie || !duration) return;
-
-    const progressPercentage = (currentTime / duration) * 100;
-    const watchData = {
-      user_id: currentUser.uid,
-      movie_id: movie.id,
-      movie_title: movie.title,
-      movie_poster: movie.poster,
-      watch_duration: Math.floor(currentTime / 60), 
-      total_duration: Math.floor(duration / 60),
-      progress_percentage: progressPercentage,
-      completed: progressPercentage >= 90 
-    };
-
-    // Watch history will be saved to Firebase Firestore if needed
-    // Using Firebase instead of backend API
   };
 
   const handleToggleFavorite = async () => {
@@ -704,13 +713,14 @@ const WatchMovie = () => {
               <div className="space-y-6 lg:col-span-2">
                 <div>
                   <div className="flex items-start justify-between">
-                    <h1 className="mb-4 text-4xl font-bold text-white">{movie.title}</h1>
-                    <div className="flex space-x-2">
+                    <h1 className="mb-4 text-2xl font-bold text-white md:text-4xl">{movie.title}</h1>
+                    <div className="flex flex-wrap gap-2 sm:flex-nowrap sm:space-x-2">
                       <motion.button
-                        onClick={toggleFavorite}
+                        onClick={handleToggleFavorite}
                         whileHover={{ scale: 1.1 }}
                         whileTap={{ scale: 0.9 }}
                         className={`p-2 rounded-full ${isMovieFavorite(parseInt(id)) ? 'bg-red-500/20 text-red-500' : 'bg-white/10 text-white'}`}
+                        aria-label={isMovieFavorite(parseInt(id)) ? 'Remove from favorites' : 'Add to favorites'}
                       >
                         <Heart className={`w-5 h-5 ${isMovieFavorite(parseInt(id)) ? 'fill-current' : ''}`} />
                       </motion.button>

@@ -6,14 +6,31 @@ import { getStorage } from "firebase/storage";
 import { getMessaging, getToken, onMessage } from "firebase/messaging";
 import { getPerformance } from "firebase/performance";
 
+// Validate that all required Firebase environment variables are set
+const requiredEnvVars = [
+  'REACT_APP_FIREBASE_API_KEY',
+  'REACT_APP_FIREBASE_AUTH_DOMAIN',
+  'REACT_APP_FIREBASE_PROJECT_ID',
+  'REACT_APP_FIREBASE_STORAGE_BUCKET',
+  'REACT_APP_FIREBASE_MESSAGING_SENDER_ID',
+  'REACT_APP_FIREBASE_APP_ID'
+];
+
+const missingVars = requiredEnvVars.filter(varName => !process.env[varName]);
+
+if (missingVars.length > 0) {
+  console.error('Missing required Firebase environment variables:', missingVars);
+  console.error('Please create a .env file in the frontend directory. See env.example for reference.');
+}
+
 const firebaseConfig = {
-  apiKey: "AIzaSyBFdETSiva84jNkv5s02N1ulfrlLBBjdlg",
-  authDomain: "sayn-movie-app.firebaseapp.com",
-  projectId: "sayn-movie-app",
-  storageBucket: "sayn-movie-app.appspot.com", 
-  messagingSenderId: "202464697737",
-  appId: "1:202464697737:web:9da3c72699ed913a38d558",
-  measurementId: "G-D5PMBH11PZ"
+  apiKey: process.env.REACT_APP_FIREBASE_API_KEY,
+  authDomain: process.env.REACT_APP_FIREBASE_AUTH_DOMAIN,
+  projectId: process.env.REACT_APP_FIREBASE_PROJECT_ID,
+  storageBucket: process.env.REACT_APP_FIREBASE_STORAGE_BUCKET,
+  messagingSenderId: process.env.REACT_APP_FIREBASE_MESSAGING_SENDER_ID,
+  appId: process.env.REACT_APP_FIREBASE_APP_ID,
+  measurementId: process.env.REACT_APP_FIREBASE_MEASUREMENT_ID
 };
 
 const app = initializeApp(firebaseConfig);
@@ -82,7 +99,7 @@ export const requestNotificationPermission = async () => {
     const permission = await Notification.requestPermission();
     if (permission === 'granted') {
       const token = await getToken(messaging, {
-        vapidKey: 'BGk7qUekIh9xqlf-L9J38iuUufyndynO9FA8D3mqiU_Tw-l-4GpU9obBqBgfcSpUFdt4C4u2ism9Ol1VzjzyVtE	' 
+        vapidKey: process.env.REACT_APP_FIREBASE_VAPID_KEY || 'BGk7qUekIh9xqlf-L9J38iuUufyndynO9FA8D3mqiU_Tw-l-4GpU9obBqBgfcSpUFdt4C4u2ism9Ol1VzjzyVtE'
       });
       console.log('FCM Token:', token);
       return token;

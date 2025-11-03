@@ -341,26 +341,26 @@ const HeroSection = ({ onSearchFocus }) => {
           animate={{ opacity: 1, y: 0 }}
           transition={{ duration: 0.8 }}
         >
-          <h1 className="mb-6 text-6xl font-bold text-white md:text-8xl">
+          <h1 className="mb-4 text-4xl font-bold text-white sm:text-5xl md:text-6xl lg:text-8xl">
             <span className="text-transparent bg-neon-gradient bg-clip-text">SAYN</span>
           </h1>
-          <p className="mb-8 text-xl leading-relaxed text-gray-300 md:text-2xl">
+          <p className="mb-6 text-base leading-relaxed text-gray-300 sm:text-lg md:text-xl lg:text-2xl">
             Smart Aesthetic Yielded Network
           </p>
-          <p className="max-w-2xl mx-auto mb-12 text-lg text-gray-400">
+          <p className="max-w-2xl px-4 mx-auto mb-8 text-sm text-gray-400 sm:text-base md:text-lg">
             Discover millions of movies with real-time data from The Movie Database
           </p>
           <motion.div
-            className="relative max-w-2xl mx-auto"
+            className="relative max-w-2xl px-4 mx-auto"
             whileHover={{ scale: 1.02 }}
           >
-            <GlassCard className="p-4">
-              <div className="flex items-center space-x-4">
-                <Search className="w-6 h-6 text-cinema-blue" />
+            <GlassCard className="p-3 sm:p-4">
+              <div className="flex items-center space-x-2 sm:space-x-4">
+                <Search className="flex-shrink-0 w-5 h-5 text-cinema-blue sm:w-6 sm:h-6" />
                 <input
                   type="text"
                   placeholder="Search from millions of movies..."
-                  className="flex-1 text-lg text-white placeholder-gray-400 bg-transparent outline-none"
+                  className="flex-1 text-sm text-white placeholder-gray-400 bg-transparent outline-none sm:text-base md:text-lg"
                   onFocus={onSearchFocus}
                   aria-label="Search movies"
                 />
@@ -368,10 +368,10 @@ const HeroSection = ({ onSearchFocus }) => {
                   <motion.button
                     whileHover={{ scale: 1.1 }}
                     whileTap={{ scale: 0.9 }}
-                    className="p-2 text-white transition-colors rounded-lg bg-cinema-blue hover:bg-cinema-blue/80"
+                    className="flex-shrink-0 p-2 text-white transition-colors rounded-lg bg-cinema-blue hover:bg-cinema-blue/80"
                     aria-label="Advanced search"
                   >
-                    <Filter className="w-5 h-5" />
+                    <Filter className="w-4 h-4 sm:w-5 sm:h-5" />
                   </motion.button>
                 </Link>
               </div>
@@ -867,25 +867,25 @@ const AppContent = () => {
                   />
                   
                   <div className="flex flex-col gap-4 mb-8 lg:flex-row">
-                    <GlassCard className="flex-1 p-4">
-                      <div className="flex items-center space-x-3">
-                        <Search className="w-5 h-5 text-cinema-blue" />
+                    <GlassCard className="flex-1 p-3 sm:p-4">
+                      <div className="flex items-center space-x-2 sm:space-x-3">
+                        <Search className="flex-shrink-0 w-4 h-4 text-cinema-blue sm:w-5 sm:h-5" />
                         <input
                           type="text"
                           placeholder="Search movies..."
                           value={searchQuery}
                           onChange={(e) => setSearchQuery(e.target.value)}
-                          className="flex-1 text-white placeholder-gray-400 bg-transparent outline-none"
+                          className="flex-1 text-sm text-white placeholder-gray-400 bg-transparent outline-none sm:text-base"
                           aria-label="Search movies"
                         />
                       </div>
                     </GlassCard>
                     
-                    <GlassCard className="p-4">
+                    <GlassCard className="p-3 sm:p-4">
                       <select
                         value={selectedGenre}
                         onChange={(e) => setSelectedGenre(e.target.value)}
-                        className="bg-transparent text-white outline-none cursor-pointer min-w-[150px]"
+                        className="w-full bg-transparent text-sm text-white outline-none cursor-pointer sm:text-base lg:min-w-[150px]"
                         aria-label="Filter by genre"
                       >
                         {genres.map(genre => (
@@ -898,7 +898,7 @@ const AppContent = () => {
                   </div>
 
                   {!searchQuery && (
-                    <div className="flex flex-wrap justify-center gap-4 mb-8">
+                    <div className="flex flex-wrap justify-center gap-2 mb-8 sm:gap-4">
                       {[
                         { id: 'trending', label: 'Trending', icon: TrendingUp },
                         { id: 'popular', label: 'Popular', icon: Film },
@@ -909,7 +909,7 @@ const AppContent = () => {
                           whileHover={{ scale: 1.05 }}
                           whileTap={{ scale: 0.95 }}
                           onClick={() => setActiveSection(id)}
-                          className={`flex items-center space-x-2 px-6 py-3 rounded-lg font-semibold transition-colors ${
+                          className={`flex items-center space-x-1 px-3 py-2 text-sm rounded-lg font-semibold transition-colors sm:space-x-2 sm:px-6 sm:py-3 sm:text-base ${
                             activeSection === id
                               ? 'bg-cinema-blue text-white'
                               : 'bg-white/10 text-gray-300 hover:text-white hover:bg-white/20'
@@ -917,7 +917,7 @@ const AppContent = () => {
                           aria-label={`Show ${label} movies`}
                           aria-pressed={activeSection === id}
                         >
-                          <Icon className="w-5 h-5" />
+                          <Icon className="w-4 h-4 sm:w-5 sm:h-5" />
                           <span>{label}</span>
                         </motion.button>
                       ))}

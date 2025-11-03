@@ -1,4 +1,4 @@
-import { useState, useEffect, useMemo } from 'react';
+import { useState, useEffect, useMemo, useCallback } from 'react';
 import { motion, AnimatePresence } from 'framer-motion';
 import { 
   User, Heart, Clock, Star, Award,
@@ -71,7 +71,8 @@ const ProfileEditor = ({ profile, isOpen, onClose, onSave }) => {
         avatar: profile.avatar || null
       });
       if (profile.avatar) {
-        setAvatarPreview(`${BACKEND_URL}/uploads/avatars/${profile.avatar}`);
+        // Avatar can be stored in Firebase Storage if needed
+        setAvatarPreview(profile.avatar);
       }
     }
   }, [profile]);
@@ -88,21 +89,13 @@ const ProfileEditor = ({ profile, isOpen, onClose, onSave }) => {
 
     setIsUploading(true);
     try {
-      const formData = new FormData();
-      formData.append('avatar', file);
-      
-      const response = await axios.post(`${BACKEND_URL}/api/upload-avatar`, formData, {
-        headers: {
-          'Content-Type': 'multipart/form-data'
-        }
-      });
-      
-      setFormData(prev => ({ ...prev, avatar: response.data.filename }));
-      toast.success('Avatar uploaded successfully!');
+      // Avatar upload can use Firebase Storage if needed
+      // For now, use local preview (already set above)
+      setIsUploading(false);
+      toast.success('Avatar preview updated!');
     } catch (error) {
       console.error('Error uploading avatar:', error);
       toast.error('Failed to upload avatar');
-    } finally {
       setIsUploading(false);
     }
   };
@@ -732,39 +725,40 @@ const UserDashboard = () => {
     }
   };
 
-  const handleSaveProfile = async (updatedData) => {
+  const handleSaveProfile = useCallback(async (updatedData) => {
     try {
-      const response = await axios.put(`${BACKEND_URL}/api/profile/${currentUser.uid}`, updatedData);
-      setProfile(response.data);
+      // Backend API removed - save to Firebase Firestore if needed
+      setProfile(prev => ({ ...prev, ...updatedData }));
       setShowProfileEditor(false);
       toast.success('Profile updated successfully!');
     } catch (error) {
       console.error('Error updating profile:', error);
       toast.error('Failed to update profile');
     }
-  };
+  }, []);
 
-  const handleCreateProfile = async (profileData) => {
+  const handleCreateProfile = useCallback(async (profileData) => {
     try {
-      const response = await axios.post(`${BACKEND_URL}/api/profile/${currentUser.uid}/multiple-profiles`, profileData);
-      setProfiles(prev => [...prev, response.data]);
+      // Backend API removed - save to Firebase Firestore if needed
+      const newProfile = { ...profileData, id: Date.now().toString(), created_at: new Date().toISOString() };
+      setProfiles(prev => [...prev, newProfile]);
       toast.success('Profile created successfully!');
     } catch (error) {
       console.error('Error creating profile:', error);
       toast.error('Failed to create profile');
     }
-  };
+  }, []);
 
-  const handleDeleteProfile = async (profileId) => {
+  const handleDeleteProfile = useCallback(async (profileId) => {
     try {
-      await axios.delete(`${BACKEND_URL}/api/multiple-profiles/${profileId}`);
+      // Backend API removed - delete from Firebase Firestore if needed
       setProfiles(prev => prev.filter(p => p.id !== profileId));
       toast.success('Profile deleted successfully!');
     } catch (error) {
       console.error('Error deleting profile:', error);
       toast.error('Failed to delete profile');
     }
-  };
+  }, []);
 
   const handleLogout = async () => {
     try {
@@ -776,7 +770,7 @@ const UserDashboard = () => {
     }
   };
 
-  const handleStatCardClick = (statName) => {
+  const handleStatCardClick = useCallback((statName) => {
     switch(statName) {
       case 'Watch Time':
         setActiveTab('activity');
@@ -793,7 +787,7 @@ const UserDashboard = () => {
       default:
         break;
     }
-  };
+  }, [navigate]);
 
   if (loading) {
     return (
@@ -821,7 +815,7 @@ const UserDashboard = () => {
           <div className="flex flex-col items-start justify-between mb-8 md:flex-row md:items-center">
             <div>
               <h1 className="mb-2 text-3xl font-bold text-white sm:text-4xl">
-                Welcome back, {profile?.display_name || currentUser.displayName || 'User'}!
+                Welcome back, {profile?.display_name || currentUser?.displayName || 'User'}!
               </h1>
               <p className="text-gray-400">Manage your profile and view your movie journey</p>
             </div>
