@@ -13,6 +13,7 @@ body {
   -moz-osx-font-smoothing: grayscale;
   background: #0D0D1D;
   color: white;
+  min-height: 100vh;
 }
 
 code {
@@ -30,6 +31,7 @@ html {
 
 /* Custom utilities */
 @layer utilities {
+  /* Glass morphism effects */
   .bg-glass-gradient {
     background: linear-gradient(135deg, rgba(255, 255, 255, 0.1) 0%, rgba(255, 255, 255, 0.05) 100%);
   }
@@ -37,5 +39,163 @@ html {
   .backdrop-blur-glass {
     backdrop-filter: blur(16px);
     -webkit-backdrop-filter: blur(16px);
+  }
+
+  /* Text gradients */
+  .text-gradient-primary {
+    background: linear-gradient(90deg, #FF4D4D 0%, #F9CB28 100%);
+    -webkit-background-clip: text;
+    background-clip: text;
+    color: transparent;
+  }
+
+  /* Scrollbar styling */
+  .scrollbar-hide::-webkit-scrollbar {
+    display: none;
+  }
+  
+  .scrollbar-custom::-webkit-scrollbar {
+    width: 8px;
+    height: 8px;
+  }
+  
+  .scrollbar-custom::-webkit-scrollbar-track {
+    background: rgba(255, 255, 255, 0.05);
+    border-radius: 10px;
+  }
+  
+  .scrollbar-custom::-webkit-scrollbar-thumb {
+    background: rgba(255, 255, 255, 0.2);
+    border-radius: 10px;
+  }
+  
+  .scrollbar-custom::-webkit-scrollbar-thumb:hover {
+    background: rgba(255, 255, 255, 0.3);
+  }
+
+  /* Animation utilities */
+  .animate-float {
+    animation: float 6s ease-in-out infinite;
+  }
+  
+  .animate-float-delay {
+    animation: float 6s ease-in-out infinite 1s;
+  }
+  
+  @keyframes float {
+    0% { transform: translateY(0px); }
+    50% { transform: translateY(-20px); }
+    100% { transform: translateY(0px); }
+  }
+
+  /* Movie card hover effect */
+  .movie-card-hover {
+    transition: transform 0.3s ease, box-shadow 0.3s ease;
+  }
+  
+  .movie-card-hover:hover {
+    transform: translateY(-8px);
+    box-shadow: 0 20px 25px -5px rgba(0, 0, 0, 0.1), 0 10px 10px -5px rgba(0, 0, 0, 0.04);
+  }
+
+  /* Rating badge */
+  .rating-badge {
+    position: relative;
+  }
+  
+  .rating-badge::after {
+    content: '';
+    position: absolute;
+    top: 0;
+    left: 0;
+    right: 0;
+    bottom: 0;
+    border-radius: 9999px;
+    padding: 1px;
+    background: linear-gradient(135deg, #FF4D4D 0%, #F9CB28 100%);
+    -webkit-mask: linear-gradient(#fff 0 0) content-box, linear-gradient(#fff 0 0);
+    -webkit-mask-composite: xor;
+    mask-composite: exclude;
+    pointer-events: none;
+  }
+
+  /* Gradient borders */
+  .border-gradient {
+    position: relative;
+  }
+  
+  .border-gradient::after {
+    content: '';
+    position: absolute;
+    top: 0;
+    left: 0;
+    right: 0;
+    bottom: 0;
+    border-radius: inherit;
+    padding: 1px;
+    background: linear-gradient(135deg, rgba(255,255,255,0.5) 0%, rgba(255,255,255,0.1) 100%);
+    -webkit-mask: linear-gradient(#fff 0 0) content-box, linear-gradient(#fff 0 0);
+    -webkit-mask-composite: xor;
+    mask-composite: exclude;
+    pointer-events: none;
+  }
+
+  /* Aspect ratios for movie posters */
+  .aspect-poster {
+    aspect-ratio: 2/3;
+  }
+  
+  .aspect-banner {
+    aspect-ratio: 16/9;
+  }
+
+  /* Fade-in animation */
+  .fade-in {
+    animation: fadeIn 0.5s ease-in;
+  }
+  
+  @keyframes fadeIn {
+    from { opacity: 0; }
+    to { opacity: 1; }
+  }
+}
+
+/* Custom components */
+@layer components {
+  /* Button styles */
+  .btn-primary {
+    @apply px-6 py-2 font-medium text-white transition-all duration-200 rounded-full bg-gradient-to-r from-red-500 to-yellow-400 hover:opacity-90;
+  }
+  
+  .btn-outline {
+    @apply px-6 py-2 font-medium transition-all duration-200 border rounded-full border-white/20 hover:bg-white/10;
+  }
+
+  /* Input styles */
+  .input-search {
+    @apply w-full px-6 py-3 text-white transition-all duration-200 border rounded-full bg-white/5 border-white/10 placeholder-white/50 focus:outline-none focus:ring-2 focus:ring-yellow-400/50;
+  }
+
+  /* Navigation link styles */
+  .nav-link {
+    @apply relative px-4 py-2 font-medium transition-all duration-200 text-white/80 hover:text-white;
+  }
+  
+  .nav-link::after {
+    @apply content-[''] absolute bottom-0 left-1/2 w-0 h-0.5 bg-gradient-to-r from-red-500 to-yellow-400 transition-all duration-200;
+    transform: translateX(-50%);
+  }
+  
+  .nav-link:hover::after {
+    @apply w-3/4;
+  }
+  
+  .nav-link-active {
+    @apply text-white;
+  }
+  
+  .nav-link-active::after {
+    @apply content-[''] absolute bottom-0 left-1/2 w-3/4 h-0.5 bg-gradient-to-r from-red-500 to-yellow-400;
+    transform: translateX(-50%);
   }
 }

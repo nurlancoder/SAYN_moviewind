@@ -13,13 +13,33 @@ import requests
 import asyncio
 import json
 
+# Configure logging first
+logging.basicConfig(
+    level=logging.INFO,
+    format='%(asctime)s - %(name)s - %(levelname)s - %(message)s'
+)
+logger = logging.getLogger(__name__)
+
 ROOT_DIR = Path(__file__).parent
 load_dotenv(ROOT_DIR / '.env')
 
-# MongoDB connection
-mongo_url = os.environ['MONGO_URL']
-client = AsyncIOMotorClient(mongo_url)
-db = client[os.environ['DB_NAME']]
+# MongoDB connection with error handling
+try:
+    mongo_url = os.environ.get('MONGO_URL')
+    db_name = os.environ.get('DB_NAME')
+    
+    if not mongo_url or not db_name:
+        logger.warning("MONGO_URL or DB_NAME not set. Using defaults or raising error.")
+        mongo_url = os.environ.get('MONGO_URL', 'mongodb://localhost:27017')
+        db_name = os.environ.get('DB_NAME', 'sayn_movies')
+    
+    client = AsyncIOMotorClient(mongo_url)
+    db = client[db_name]
+except Exception as e:
+    logger.error(f"Failed to connect to MongoDB: {e}")
+    # Create a dummy client to prevent app from crashing
+    client = None
+    db = None
 
 # API configuration
 TMDB_API_KEY = os.environ.get('TMDB_API_KEY', 'demo-key-replace-with-real')
@@ -245,6 +265,10 @@ async def process_imdb_movie_data(imdb_data: dict) -> dict:
 async def calculate_user_recommendations(user_id: str, limit: int = 20) -> List[Dict]:
     """AI-powered movie recommendations based on user behavior"""
     try:
+        if not db:
+            logger.warning("Database not available, returning empty recommendations")
+            return []
+        
         # Get user's watch history and ratings
         user_profile = await db.user_profiles.find_one({"user_id": user_id})
         if not user_profile:
@@ -306,6 +330,8 @@ async def root():
 
 @api_router.post("/status", response_model=StatusCheck)
 async def create_status_check(input: StatusCheckCreate):
+    if not db:
+        raise HTTPException(status_code=503, detail="Database connection not available")
     status_dict = input.dict()
     status_obj = StatusCheck(**status_dict)
     _ = await db.status_checks.insert_one(status_obj.dict())
@@ -313,6 +339,8 @@ async def create_status_check(input: StatusCheckCreate):
 
 @api_router.get("/status", response_model=List[StatusCheck])
 async def get_status_checks():
+    if not db:
+        raise HTTPException(status_code=503, detail="Database connection not available")
     status_checks = await db.status_checks.find().to_list(1000)
     return [StatusCheck(**status_check) for status_check in status_checks]
 
@@ -413,7 +441,7 @@ async def get_movie_details(movie_id: str):
     # Try to get IMDb data if available
     imdb_data = None
     try:
-        if tmdb_data.get("imdb_id"):
+        if tmdb_data.get("imdb_id") and db:
             imdb_id = tmdb_data["imdb_id"]
             # Check cache first
             cached_imdb = await db.imdb_cache.find_one({"imdb_id": imdb_id})
@@ -452,6 +480,8 @@ async def get_movie_genres():
 @api_router.post("/profile", response_model=UserProfile)
 async def create_user_profile(profile: UserProfileCreate):
     """Create a new user profile"""
+    if not db:
+        raise HTTPException(status_code=503, detail="Database connection not available")
     existing = await db.user_profiles.find_one({"user_id": profile.user_id})
     if existing:
         raise HTTPException(status_code=400, detail="Profile already exists")
@@ -463,6 +493,8 @@ async def create_user_profile(profile: UserProfileCreate):
 @api_router.get("/profile/{user_id}", response_model=UserProfile)
 async def get_user_profile(user_id: str):
     """Get user profile by user ID"""
+    if not db:
+        raise HTTPException(status_code=503, detail="Database connection not available")
     profile = await db.user_profiles.find_one({"user_id": user_id})
     if not profile:
         raise HTTPException(status_code=404, detail="Profile not found")
@@ -471,6 +503,8 @@ async def get_user_profile(user_id: str):
 @api_router.put("/profile/{user_id}", response_model=UserProfile)
 async def update_user_profile(user_id: str, updates: UserProfileUpdate):
     """Update user profile"""
+    if not db:
+        raise HTTPException(status_code=503, detail="Database connection not available")
     profile = await db.user_profiles.find_one({"user_id": user_id})
     if not profile:
         raise HTTPException(status_code=404, detail="Profile not found")
@@ -782,6 +816,8 @@ async def like_comment(comment_id: str, user_id: str):
 @api_router.get("/stats/{user_id}")
 async def get_user_stats(user_id: str):
     """Get comprehensive user statistics"""
+    if not db:
+        raise HTTPException(status_code=503, detail="Database connection not available")
     profile = await db.user_profiles.find_one({"user_id": user_id})
     watch_history = await db.watch_history.find({"user_id": user_id}).to_list(1000)
     ratings = await db.movie_ratings.find({"user_id": user_id}).to_list(1000)
@@ -816,13 +852,7 @@ app.add_middleware(
     allow_headers=["*"],
 )
 
-# Configure logging
-logging.basicConfig(
-    level=logging.INFO,
-    format='%(asctime)s - %(name)s - %(levelname)s - %(message)s'
-)
-logger = logging.getLogger(__name__)
-
 @app.on_event("shutdown")
 async def shutdown_db_client():
-    client.close()
+    if client:
+        client.close()
