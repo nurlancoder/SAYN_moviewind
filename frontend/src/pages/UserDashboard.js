@@ -13,7 +13,7 @@ import { useNavigate } from 'react-router-dom';
 import { toast } from 'react-toastify';
 import { genres } from '../utils/genres';
 
-const BACKEND_URL = process.env.REACT_APP_BACKEND_URL || 'http://localhost:8001';
+// Backend API removed - using Firebase Firestore instead
 
 const GlassCard = ({ children, className = "", ...props }) => (
   <motion.div
@@ -711,42 +711,18 @@ const UserDashboard = () => {
     try {
       setLoading(true);
       
-      try {
-        const profileResponse = await axios.get(`${BACKEND_URL}/api/profile/${currentUser.uid}`);
-        setProfile(profileResponse.data);
-      } catch (error) {
-        if (error.response?.status === 404) {
-          const newProfile = {
-            user_id: currentUser.uid,
-            display_name: currentUser.displayName || 'User',
-            language: 'en',
-            theme: 'dark'
-          };
-          const createResponse = await axios.post(`${BACKEND_URL}/api/profile`, newProfile);
-          setProfile(createResponse.data);
-        }
+      // Backend API removed - using Firebase Firestore instead
+      // Profile data can be stored in Firestore if needed
+      if (currentUser) {
+        setProfile({
+          user_id: currentUser.uid,
+          display_name: currentUser.displayName || 'User',
+          language: 'en',
+          theme: 'dark'
+        });
       }
-
-      try {
-        const profilesResponse = await axios.get(`${BACKEND_URL}/api/profile/${currentUser.uid}/multiple-profiles`);
-        setProfiles(profilesResponse.data);
-      } catch (error) {
-        console.error('Error loading profiles:', error);
-      }
-
-      try {
-        const historyResponse = await axios.get(`${BACKEND_URL}/api/watch-history/${currentUser.uid}`);
-        setWatchHistory(historyResponse.data);
-      } catch (error) {
-        console.error('Error loading watch history:', error);
-      }
-
-      try {
-        const statsResponse = await axios.get(`${BACKEND_URL}/api/stats/${currentUser.uid}`);
-        setUserStats(statsResponse.data);
-      } catch (error) {
-        console.error('Error loading stats:', error);
-      }
+      
+      // Profiles, watch history, and stats can be implemented with Firebase if needed
 
     } catch (error) {
       console.error('Error loading user data:', error);

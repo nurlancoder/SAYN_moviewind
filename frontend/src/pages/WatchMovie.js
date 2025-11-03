@@ -8,10 +8,8 @@ import {
   Loader, AlertCircle, CheckCircle, Bookmark
 } from 'lucide-react';
 import { useAuth } from '../contexts/AuthContext';
+import { useFavorites } from '../hooks/useFavorites';
 import tmdbService from '../services/tmdbService';
-import axios from 'axios';
-
-const BACKEND_URL = process.env.REACT_APP_BACKEND_URL || 'http://localhost:8001';
 
 const VideoPlayer = ({ 
   src, 
@@ -460,11 +458,12 @@ const WatchMovie = () => {
   const { id } = useParams();
   const navigate = useNavigate();
   const { currentUser } = useAuth();
+  const { toggleFavorite, isFavorite: isMovieFavorite } = useFavorites();
   
   const [movie, setMovie] = useState(null);
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState(null);
-  const [isFavorite, setIsFavorite] = useState(false);
+  // Using useFavorites hook instead of local state
   const [isWatchlist, setIsWatchlist] = useState(false);
   
   const [currentTime, setCurrentTime] = useState(0);
@@ -522,14 +521,9 @@ const WatchMovie = () => {
       const movieData = await tmdbService.getMovieDetails(id);
       setMovie(movieData);
       
+      // User rating check removed - using Firebase instead
       if (currentUser) {
-        try {
-          const ratingsResponse = await axios.get(`${BACKEND_URL}/api/movies/${id}/ratings`);
-          const userRating = ratingsResponse.data.ratings?.find(r => r.user_id === currentUser.uid);
-          setHasRated(!!userRating);
-        } catch (error) {
-          console.error('Error checking user rating:', error);
-        }
+        // Rating data will be fetched from Firebase Firestore if needed
       }
     } catch (error) {
       console.error('Error loading movie:', error);
@@ -542,17 +536,8 @@ const WatchMovie = () => {
   const checkUserLists = async () => {
     if (!currentUser) return;
     
-    try {
-      const [favoritesRes, watchlistRes] = await Promise.all([
-        axios.get(`${BACKEND_URL}/api/users/${currentUser.uid}/favorites`),
-        axios.get(`${BACKEND_URL}/api/users/${currentUser.uid}/watchlist`)
-      ]);
-      
-      setIsFavorite(favoritesRes.data.some(m => m.id === id));
-      setIsWatchlist(watchlistRes.data.some(m => m.id === id));
-    } catch (error) {
-      console.error('Error checking user lists:', error);
-    }
+    // Using Firebase favoritesService - no backend API needed
+    // Favorites are checked via useFavorites hook
   };
 
   const loadRecommendations = async () => {
@@ -579,30 +564,27 @@ const WatchMovie = () => {
       completed: progressPercentage >= 90 
     };
 
-    try {
-      await axios.post(`${BACKEND_URL}/api/watch-history`, watchData);
-    } catch (error) {
-      console.error('Error updating watch progress:', error);
-    }
+    // Watch history will be saved to Firebase Firestore if needed
+    // Using Firebase instead of backend API
   };
 
-  const toggleFavorite = async () => {
+  const handleToggleFavorite = async () => {
     if (!currentUser) {
       navigate('/login');
       return;
     }
     
     try {
-      if (isFavorite) {
-        await axios.delete(`${BACKEND_URL}/api/users/${currentUser.uid}/favorites/${id}`);
-      } else {
-        await axios.post(`${BACKEND_URL}/api/users/${currentUser.uid}/favorites`, {
-          movie_id: id,
-          movie_title: movie.title,
-          movie_poster: movie.poster
-        });
-      }
-      setIsFavorite(!isFavorite);
+      const movieData = {
+        id: parseInt(id),
+        title: movie.title,
+        poster: movie.poster,
+        rating: movie.rating,
+        year: movie.year,
+        description: movie.description,
+        genre: movie.genre || []
+      };
+      await toggleFavorite(movieData);
     } catch (error) {
       console.error('Error toggling favorite:', error);
     }
@@ -614,20 +596,8 @@ const WatchMovie = () => {
       return;
     }
     
-    try {
-      if (isWatchlist) {
-        await axios.delete(`${BACKEND_URL}/api/users/${currentUser.uid}/watchlist/${id}`);
-      } else {
-        await axios.post(`${BACKEND_URL}/api/users/${currentUser.uid}/watchlist`, {
-          movie_id: id,
-          movie_title: movie.title,
-          movie_poster: movie.poster
-        });
-      }
-      setIsWatchlist(!isWatchlist);
-    } catch (error) {
-      console.error('Error toggling watchlist:', error);
-    }
+    // Watchlist functionality - can be implemented with Firebase Firestore if needed
+    setIsWatchlist(!isWatchlist);
   };
 
   const handleDownload = async () => {
@@ -740,9 +710,9 @@ const WatchMovie = () => {
                         onClick={toggleFavorite}
                         whileHover={{ scale: 1.1 }}
                         whileTap={{ scale: 0.9 }}
-                        className={`p-2 rounded-full ${isFavorite ? 'bg-red-500/20 text-red-500' : 'bg-white/10 text-white'}`}
+                        className={`p-2 rounded-full ${isMovieFavorite(parseInt(id)) ? 'bg-red-500/20 text-red-500' : 'bg-white/10 text-white'}`}
                       >
-                        <Heart className={`w-5 h-5 ${isFavorite ? 'fill-current' : ''}`} />
+                        <Heart className={`w-5 h-5 ${isMovieFavorite(parseInt(id)) ? 'fill-current' : ''}`} />
                       </motion.button>
                       <motion.button
                         onClick={toggleWatchlist}
@@ -894,13 +864,13 @@ const WatchMovie = () => {
                   {currentUser && (
                     <>
                       <motion.button
-                        onClick={toggleFavorite}
+                        onClick={handleToggleFavorite}
                         whileHover={{ scale: 1.05 }}
                         whileTap={{ scale: 0.95 }}
-                        className={`w-full ${isFavorite ? 'bg-red-500/20 text-red-500 border-red-500/30' : 'bg-white/10 text-white'} px-4 py-3 rounded-lg font-semibold border flex items-center justify-center space-x-2`}
+                        className={`w-full ${isMovieFavorite(parseInt(id)) ? 'bg-red-500/20 text-red-500 border-red-500/30' : 'bg-white/10 text-white'} px-4 py-3 rounded-lg font-semibold border flex items-center justify-center space-x-2`}
                       >
-                        <Heart className={`w-5 h-5 ${isFavorite ? 'fill-current' : ''}`} />
-                        <span>{isFavorite ? 'Remove from Favorites' : 'Add to Favorites'}</span>
+                        <Heart className={`w-5 h-5 ${isMovieFavorite(parseInt(id)) ? 'fill-current' : ''}`} />
+                        <span>{isMovieFavorite(parseInt(id)) ? 'Remove from Favorites' : 'Add to Favorites'}</span>
                       </motion.button>
 
                       <motion.button

@@ -8,7 +8,7 @@ import {
 import { useAuth } from '../contexts/AuthContext';
 import axios from 'axios';
 
-const BACKEND_URL = process.env.REACT_APP_BACKEND_URL || 'http://localhost:8001';
+// Backend API removed - using Firebase Firestore for reviews if needed
 
 const GlassCard = ({ children, className = "", ...props }) => (
   <motion.div
@@ -590,7 +590,8 @@ const MovieReviews = ({ movieId, movieTitle }) => {
       setLoading(true);
       setError(null);
       
-      const response = await axios.get(`${BACKEND_URL}/api/movies/${movieId}/reviews`, {
+      // Backend API removed - reviews can be stored in Firebase Firestore if needed
+      const response = { data: [] }; // await axios.get(`${BACKEND_URL}/api/movies/${movieId}/reviews`, {
         params: { 
           sort_by: sortBy,
           rating_filter: ratingFilter,
@@ -610,7 +611,8 @@ const MovieReviews = ({ movieId, movieTitle }) => {
 
   const loadRatingStats = async () => {
     try {
-      const response = await axios.get(`${BACKEND_URL}/api/movies/${movieId}/ratings`);
+      // Backend API removed
+      const response = { data: { average_rating: 0, total_ratings: 0, distribution: {} } }; // await axios.get(`${BACKEND_URL}/api/movies/${movieId}/ratings`);
       setAverageRating(response.data.average_rating);
       setTotalRatings(response.data.total_ratings);
       setRatingDistribution(response.data.distribution);
@@ -624,15 +626,11 @@ const MovieReviews = ({ movieId, movieTitle }) => {
       let response;
       
       if (editingReview) {
-        response = await axios.put(
-          `${BACKEND_URL}/api/reviews/${editingReview.id}`,
-          reviewData
-        );
+        // Backend API removed - save to Firebase Firestore if needed
+        response = { data: { ...reviewData, id: editingReview.id } };
       } else {
-        response = await axios.post(
-          `${BACKEND_URL}/api/movies/${movieId}/reviews`,
-          reviewData
-        );
+        // Backend API removed - save to Firebase Firestore if needed
+        response = { data: { ...reviewData, id: Date.now().toString() } };
       }
       
       if (editingReview) {
@@ -657,7 +655,8 @@ const MovieReviews = ({ movieId, movieTitle }) => {
     if (!currentUser) return;
     
     try {
-      await axios.post(`${BACKEND_URL}/api/reviews/${reviewId}/vote`, {
+      // Backend API removed - save vote to Firebase Firestore if needed
+      // await axios.post(`${BACKEND_URL}/api/reviews/${reviewId}/vote`, {
         user_id: currentUser.uid,
         action: action === 'like' ? 'like' : 'dislike'
       });
@@ -677,7 +676,8 @@ const MovieReviews = ({ movieId, movieTitle }) => {
     if (!window.confirm('Are you sure you want to delete this review?')) return;
     
     try {
-      await axios.delete(`${BACKEND_URL}/api/reviews/${reviewId}`);
+      // Backend API removed - delete from Firebase Firestore if needed
+      // await axios.delete(`${BACKEND_URL}/api/reviews/${reviewId}`);
       setReviews(prev => prev.filter(r => r.id !== reviewId));
       await loadRatingStats(); 
     } catch (error) {
@@ -691,7 +691,8 @@ const MovieReviews = ({ movieId, movieTitle }) => {
     
     try {
       setIsReporting(true);
-      await axios.post(`${BACKEND_URL}/api/reviews/${reviewId}/report`, {
+      // Backend API removed - save report to Firebase Firestore if needed
+      // await axios.post(`${BACKEND_URL}/api/reviews/${reviewId}/report`, {
         user_id: currentUser?.uid,
         reason: reportReason
       });

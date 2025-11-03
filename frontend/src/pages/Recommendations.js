@@ -12,7 +12,7 @@ import MovieCard from '../components/MovieCard';
 import axios from 'axios';
 import tmdbService from '../services/tmdbService';
 
-const BACKEND_URL = process.env.REACT_APP_BACKEND_URL || 'http://localhost:8001';
+// Backend API removed - using Firebase and TMDB API directly
 
 const GlassCard = ({ children, className = "", hover = true, ...props }) => (
   <motion.div
@@ -553,27 +553,18 @@ const Recommendations = () => {
   }, [currentUser, refreshCount]);
 
   const loadUserData = async () => {
-    try {
-      const profileResponse = await axios.get(`${BACKEND_URL}/api/profile/${currentUser.uid}`);
-      setUserProfile(profileResponse.data);
-
-      const historyResponse = await axios.get(`${BACKEND_URL}/api/watch-history/${currentUser.uid}`);
-      setWatchHistory(historyResponse.data);
-
-      const ratingsResponse = await axios.get(`${BACKEND_URL}/api/movies/ratings?user_id=${currentUser.uid}`);
-      setUserRatings(ratingsResponse.data || []);
-    } catch (error) {
-      console.error('Error loading user data:', error);
-    }
+    // Backend API removed - using Firebase Firestore instead
+    // User data can be fetched from Firestore if needed
   };
 
   const loadPersonalRecommendations = async () => {
     try {
       setLoading(prev => ({ ...prev, personal: true }));
-      const response = await axios.get(`${BACKEND_URL}/api/recommendations/${currentUser.uid}`);
+      // Personal recommendations can use TMDB API based on user favorites from Firebase
+      const trending = await tmdbService.getTrendingMovies('week');
       setRecommendations(prev => ({
         ...prev,
-        personal: response.data.recommendations || []
+        personal: trending.slice(0, 20) || []
       }));
     } catch (error) {
       console.error('Error loading personal recommendations:', error);
